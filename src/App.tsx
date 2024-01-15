@@ -2,9 +2,13 @@ import { Grid, GridItem, Show } from "@chakra-ui/react";
 import "./styles/App.css";
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
-import DashBoard from "./components/DashBoard";
+import { ReactNode } from "react";
 
-function App() {
+interface Props {
+  children: ReactNode;
+}
+
+function App({ children }: Props) {
   return (
     <Grid
       templateAreas={{ base: `"nav" "main"`, lg: `"aside nav" "aside main"` }}
@@ -29,7 +33,7 @@ function App() {
         </GridItem>
       </Show>
       <GridItem area="main" margin={7}>
-        <DashBoard />
+        {children}
       </GridItem>
     </Grid>
   );
