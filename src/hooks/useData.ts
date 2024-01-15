@@ -1,5 +1,6 @@
 import { AxiosRequestConfig, CanceledError } from "axios";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import apiClient from "../services/api-client";
 
 interface FetchResponse<T> {
@@ -7,10 +8,21 @@ interface FetchResponse<T> {
   data: T[];
 }
 
-const useData = <T>(endpoint: string, requestConfig?: AxiosRequestConfig, deps?: any[]) => {
+const getHeaders = () => {
+  const localAuth = window.localStorage.getItem("auth");
+  return {
+    "Content-Type": "application/json",
+    Authorization:
+      "JWT " + JSON.parse(localAuth ? localAuth : "").accessToken,
+  }
+}
+
+const useData = <T>(endpoint: string, redirectOn401: boolean = false, requestConfig?: AxiosRequestConfig, deps?: any[]) => {
   const [data, setData] = useState<T[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setLoading] = useState(false);
+  //
+  const navigate = useNavigate();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -18,15 +30,17 @@ const useData = <T>(endpoint: string, requestConfig?: AxiosRequestConfig, deps?:
     setLoading(true);
     setError("")
     apiClient
-      .get<FetchResponse<T>>(endpoint, { signal: controller.signal, ...requestConfig })
+      .get<FetchResponse<T>>(endpoint, { signal: controller.signal, ...requestConfig, headers: getHeaders() })
       .then((res) => {
         setData(res.data.data);
         setLoading(false);
       })
       .catch((err) => {
         if (err instanceof CanceledError) return;
-        setError(err.message)
+        setError(err.message);
         setLoading(false);
+
+        if (redirectOn401) navigate('/login')
       });
 
     return () => controller.abort();

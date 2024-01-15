@@ -1,5 +1,5 @@
 import { HStack, Text } from "@chakra-ui/react";
-import ColorModeSwitch from "./ColorModeSwitch";
+import ColorModeSwitch from "./common/ColorModeSwitch";
 
 const Navbar = () => {
   return (

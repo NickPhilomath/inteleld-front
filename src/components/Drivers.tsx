@@ -13,7 +13,7 @@ import useData from "../hooks/useData";
 import Spinner from "./common/Spinner";
 
 const Drivers = () => {
-  const { data, isLoading, error } = useData<Driver>("/drivers");
+  const { data, isLoading, error } = useData<Driver>("/drivers", true);
 
   return (
     <>

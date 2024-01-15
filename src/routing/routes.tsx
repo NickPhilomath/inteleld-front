@@ -1,9 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import Drivers from "../components/Drivers";
 import Layout from "../components/Layout";
+import Login from "../components/Login";
+import Drivers from "../components/Drivers";
 
 const router = createBrowserRouter([
-  { path: "/login", element: <h1>Login</h1> },
+  { path: "/login", element: <Login /> },
   { path: "/logout", element: <h1>Logout</h1> },
   {
     path: "/",

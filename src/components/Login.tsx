@@ -1,101 +1,151 @@
-import { useForm, FieldValues } from "react-hook-form";
-import axios from "axios";
-import { BaseUrl } from "..";
 import { useState } from "react";
+import { useForm, FieldValues } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import {
+  Text,
+  Flex,
+  Heading,
+  Input,
+  InputGroup,
+  Stack,
+  InputLeftElement,
+  chakra,
+  Button,
+  Box,
+  Link,
+  Avatar,
+  FormControl,
+  FormHelperText,
+  InputRightElement,
+} from "@chakra-ui/react";
+import { FaUserAlt, FaLock } from "react-icons/fa";
+import useRequest from "../hooks/useRequest";
+import { Auth } from "..";
+import { JWTDecoder } from "../util";
+import FormButton from "./common/FormButton";
+
+const CFaUserAlt = chakra(FaUserAlt);
+const CFaLock = chakra(FaLock);
 
 interface LoginData {
   username: string;
   password: string;
 }
 
-interface Props {
-  setAuthorized(isAuthorized: boolean): void;
-}
-
-const Login = ({ setAuthorized }: Props) => {
-  const [isLoading, setLoading] = useState(false);
+const Login = () => {
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const { post, isLoading, error } = useRequest<Auth>("/token/");
   const {
     register,
     handleSubmit,
     formState: { errors, isValid },
   } = useForm<LoginData>();
 
+  const handleShowClick = () => setShowPassword(!showPassword);
+
   const onSubmit = async (data: FieldValues) => {
-    setLoading(true);
-    console.log(data);
-    try {
-      const response = await axios.post(
-        `${BaseUrl}/api/token/`,
-        JSON.stringify(data),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response);
+    console.log("1", data);
+    post(data, (data: Auth) => {
       window.localStorage.setItem(
         "auth",
         JSON.stringify({
-          username: data.username,
-          accessToken: response.data?.access,
-          refreshToken: response.data?.refresh,
+          user_id: JWTDecoder(data.access).user_id,
+          accessToken: data?.access,
+          refreshToken: data?.refresh,
         })
       );
-      setAuthorized(true);
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-      setLoading(false);
-    }
+      navigate("/drivers");
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="form-signin">
-      <h1 className="h3 mb-3 font-weight-normal">Please sign in</h1>
-      <div className="mb-3">
-        <label htmlFor="username" className="form-label">
-          Username
-        </label>
-        <input
-          {...register("username", { required: true })}
-          type="text"
-          id="username"
-          className="form-control"
-        />
-        {errors.username?.type === "required" && (
-          <p className="text-danger">The username field is required</p>
-        )}
-      </div>
-      <div className="mb-3">
-        <label htmlFor="password" className="form-label">
-          Password
-        </label>
-        <input
-          {...register("password", { required: true })}
-          type="password"
-          id="password"
-          className="form-control"
-        />
-        {errors.password?.type === "required" && (
-          <p className="text-danger">The password field is required</p>
-        )}
-      </div>
-      {!isLoading ? (
-        <button disabled={!isValid} className="btn btn-primary" type="submit">
-          Sign in
-        </button>
-      ) : (
-        <button className="btn btn-primary" type="button">
-          <span
-            className="spinner-grow spinner-grow-sm"
-            role="status"
-            aria-hidden="true"
-          ></span>
-          Loading...
-        </button>
-      )}
-    </form>
+    <Flex
+      flexDirection="column"
+      width="100wh"
+      height="100vh"
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Stack
+        flexDir="column"
+        mb="2"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Avatar bg="teal.500" />
+        <Heading color="teal.400">Welcome</Heading>
+        <Box minW={{ base: "90%", md: "468px" }}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Stack spacing={4} p="1rem" boxShadow="lg">
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    children={<CFaUserAlt color="gray.300" />}
+                  />
+                  <Input
+                    type="text"
+                    placeholder="username"
+                    id="username"
+                    {...register("username", { required: true })}
+                  />
+                  {errors.username?.type === "required" && (
+                    <p className="text-danger">
+                      The username field is required
+                    </p>
+                  )}
+                </InputGroup>
+              </FormControl>
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement
+                    pointerEvents="none"
+                    color="gray.300"
+                    children={<CFaLock color="gray.300" />}
+                  />
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    id="password"
+                    {...register("password", { required: true })}
+                  />
+                  {errors.password?.type === "required" && (
+                    <p className="text-danger">
+                      The password field is required
+                    </p>
+                  )}
+                  <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={handleShowClick}>
+                      {showPassword ? "Hide" : "Show"}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+                <FormHelperText textAlign="right">
+                  <Link>forgot password?</Link>
+                </FormHelperText>
+              </FormControl>
+              {error && (
+                <Text fontSize={15} color="tomato">
+                  {error}
+                </Text>
+              )}
+              {isLoading ? (
+                <FormButton isSpinner={true} />
+              ) : (
+                <FormButton type="submit" text="Login" />
+              )}
+            </Stack>
+          </form>
+        </Box>
+      </Stack>
+      <Box>
+        New to us?{" "}
+        <Link color="teal.500" href="#">
+          Sign Up
+        </Link>
+      </Box>
+    </Flex>
   );
 };
 
