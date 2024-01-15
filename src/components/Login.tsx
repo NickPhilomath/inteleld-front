@@ -23,6 +23,7 @@ import useRequest from "../hooks/useRequest";
 import { Auth } from "..";
 import { JWTDecoder } from "../util";
 import FormButton from "./common/FormButton";
+import InputError from "./common/InputError";
 
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
@@ -90,12 +91,10 @@ const Login = () => {
                     id="username"
                     {...register("username", { required: true })}
                   />
-                  {errors.username?.type === "required" && (
-                    <p className="text-danger">
-                      The username field is required
-                    </p>
-                  )}
                 </InputGroup>
+                {errors.username?.type === "required" && (
+                  <InputError message="The username field is required" />
+                )}
               </FormControl>
               <FormControl>
                 <InputGroup>
@@ -110,17 +109,15 @@ const Login = () => {
                     id="password"
                     {...register("password", { required: true })}
                   />
-                  {errors.password?.type === "required" && (
-                    <p className="text-danger">
-                      The password field is required
-                    </p>
-                  )}
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" size="sm" onClick={handleShowClick}>
                       {showPassword ? "Hide" : "Show"}
                     </Button>
                   </InputRightElement>
                 </InputGroup>
+                {errors.password?.type === "required" && (
+                  <InputError message="The password field is required" />
+                )}
                 <FormHelperText textAlign="right">
                   <Link>forgot password?</Link>
                 </FormHelperText>

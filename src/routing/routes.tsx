@@ -4,6 +4,7 @@ import Home from "../components/Home";
 import Login from "../components/Login";
 import Logout from "../components/Logout";
 import Drivers from "../components/Drivers";
+import PageNotFound from "../components/PageNotFound";
 
 const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: "trucks", element: <h1>trucks</h1> },
     ],
   },
+  { path: "*", element: <PageNotFound /> },
 ]);
 
 export default router;
