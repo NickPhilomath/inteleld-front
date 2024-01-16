@@ -13,7 +13,7 @@ const Layout = () => {
         lg: "250px 1fr",
       }}
     >
-      <GridItem area="nav" boxShadow="xl" margin={5} borderRadius={15}>
+      <GridItem area="nav" boxShadow="md" margin={5} borderRadius={15}>
         <Navbar />
       </GridItem>
       <Show above="lg">

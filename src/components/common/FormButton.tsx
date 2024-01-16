@@ -16,7 +16,7 @@ const FormButton = ({
       borderRadius={1}
       type={type}
       variant="solid"
-      colorScheme="teal"
+      colorScheme="blue"
       width="full"
     >
       {isSpinner ? <Spinner /> : text}
