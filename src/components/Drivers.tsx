@@ -12,6 +12,8 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
+// import { useQuery } from "@tanstack/react-query";
+// import apiClient from "../services/api-client";
 import { Driver } from "..";
 import useData from "../hooks/useData";
 import Spinner from "./common/Spinner";
@@ -20,6 +22,19 @@ import DriverFrom from "./DriverFrom";
 const Drivers = () => {
   const { data, isLoading, error } = useData<Driver>("/drivers", true);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // const fetchDrivers = () =>
+  //   apiClient
+  //     .get<Driver[]>("/drivers")
+  //     .then((res) => {
+  //       console.log(res);
+  //       return res.data;
+  //     });
+
+  // const { data: drivers } = useQuery({
+  //   queryKey: ["drivers"],
+  //   queryFn: fetchDrivers,
+  // });
 
   return (
     <>

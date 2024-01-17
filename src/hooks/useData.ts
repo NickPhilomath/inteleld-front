@@ -8,7 +8,7 @@ interface FetchResponse<T> {
   data: T[];
 }
 
-const getHeaders = () => {
+export const getHeaders = () => {
   const localAuth = window.localStorage.getItem("auth");
   return {
     "Content-Type": "application/json",
@@ -39,8 +39,8 @@ const useData = <T>(endpoint: string, redirectOn401: boolean = false, requestCon
         if (err instanceof CanceledError) return;
         setError(err.message);
         setLoading(false);
-
-        if (redirectOn401) navigate('/login')
+        
+        if (err.response?.status === 401 && redirectOn401) navigate('/login');
       });
 
     return () => controller.abort();

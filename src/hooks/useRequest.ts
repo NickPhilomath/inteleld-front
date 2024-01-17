@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/api-client";
 
-
 const useRequest = <T>(endpoint: string, redirectOn401: boolean = false, requestConfig?: AxiosRequestConfig) => {
   const [resData, setResData] = useState<T>();
   const [error, setError] = useState("");

@@ -1,7 +1,7 @@
 import {
+  Text,
   Button,
   FormControl,
-  FormLabel,
   HStack,
   Input,
   InputGroup,
@@ -19,6 +19,9 @@ import {
 import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import InputError from "./common/InputError";
+import { STATES } from "..";
+import useRequest from "../hooks/useRequest";
+import SpinnerButton from "./common/SpinnerButton";
 
 interface Props {
   isOpen: boolean;
@@ -44,14 +47,16 @@ interface DriverData {
 
 const DriverFrom = ({ isOpen, onClose }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
+  const { post, isLoading, error } = useRequest<DriverData>("/drivers/", true);
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<DriverData>();
 
   const onSubmit = async (data: FieldValues) => {
-    console.log(data);
+    console.log("data", data);
+    post(data);
   };
 
   const handleShowClick = () => setShowPassword(!showPassword);
@@ -63,7 +68,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
         <ModalHeader>Create a Driver</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form id="driver-form" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               <HStack>
                 <FormControl>
@@ -73,7 +78,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                     id="user.first_name"
                     {...register("user.first_name", { required: true })}
                   />
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.first_name?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -84,7 +89,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                     id="user.last_name"
                     {...register("user.last_name", { required: true })}
                   />
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.last_name?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -95,7 +100,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                     id="user.username"
                     {...register("user.username", { required: true })}
                   />
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.username?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -106,7 +111,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                     id="user.email"
                     {...register("user.email", { required: true })}
                   />
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.email?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -126,7 +131,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                       </Button>
                     </InputRightElement>
                   </InputGroup>
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.password?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -137,7 +142,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                     id="user.phone"
                     {...register("user.phone", { required: true })}
                   />
-                  {errors.cdl_number?.type === "required" && (
+                  {errors.user?.phone?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
                 </FormControl>
@@ -153,22 +158,39 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   )}
                 </FormControl>
                 <FormControl>
-                  <Select placeholder="CDL state">
-                    <option>United Arab Emirates</option>
-                    <option>Nigeria</option>
+                  <Select
+                    placeholder="CDL state"
+                    id="cdl_state"
+                    {...register("cdl_state")}
+                  >
+                    {STATES.map((state, index) => {
+                      return (
+                        <option key={index} value={state.value}>
+                          {state.name}
+                        </option>
+                      );
+                    })}
                   </Select>
                 </FormControl>
               </HStack>
-              {/* {error && (
+              <HStack>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Notes"
+                    id="notes"
+                    {...register("notes")}
+                  />
+                  {errors.notes?.type === "required" && (
+                    <InputError message="This field is required" />
+                  )}
+                </FormControl>
+              </HStack>
+              {error && (
                 <Text fontSize={15} color="tomato">
                   {error}
                 </Text>
               )}
-              {isLoading ? (
-                <FormButton isSpinner={true} />
-              ) : (
-                <FormButton type="submit" text="Login" />
-              )} */}
             </Stack>
           </form>
         </ModalBody>
@@ -176,7 +198,13 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
           <Button variant="outline" mr={3} onClick={onClose}>
             Cancel
           </Button>
-          <Button colorScheme="blue">Save</Button>
+          {isLoading ? (
+            <SpinnerButton />
+          ) : (
+            <Button type="submit" form="driver-form" colorScheme="blue">
+              Save
+            </Button>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>

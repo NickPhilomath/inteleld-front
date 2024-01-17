@@ -22,8 +22,9 @@ import { FaUserAlt, FaLock } from "react-icons/fa";
 import useRequest from "../hooks/useRequest";
 import { Auth } from "..";
 import { JWTDecoder } from "../util";
-import FormButton from "./common/FormButton";
+import FormButton from "./common/SpinnerButton";
 import InputError from "./common/InputError";
+import SpinnerButton from "./common/SpinnerButton";
 
 const CFaUserAlt = chakra(FaUserAlt);
 const CFaLock = chakra(FaLock);
@@ -128,9 +129,11 @@ const Login = () => {
                 </Text>
               )}
               {isLoading ? (
-                <FormButton isSpinner={true} />
+                <SpinnerButton />
               ) : (
-                <FormButton type="submit" text="Login" />
+                <Button type="submit" colorScheme="blue">
+                  Log in
+                </Button>
               )}
             </Stack>
           </form>
