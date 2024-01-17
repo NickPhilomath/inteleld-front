@@ -10,10 +10,11 @@ interface FetchResponse<T> {
 
 export const getHeaders = () => {
   const localAuth = window.localStorage.getItem("auth");
+  const accessToken = localAuth ? JSON.parse(localAuth).accessToken : "";
   return {
     "Content-Type": "application/json",
     Authorization:
-      "JWT " + JSON.parse(localAuth ? localAuth : "").accessToken,
+      "JWT " +  accessToken,
   }
 }
 

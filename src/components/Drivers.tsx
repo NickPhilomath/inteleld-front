@@ -12,29 +12,27 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-// import { useQuery } from "@tanstack/react-query";
-// import apiClient from "../services/api-client";
-import { Driver } from "..";
-import useData from "../hooks/useData";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Spinner from "./common/Spinner";
 import DriverFrom from "./DriverFrom";
+import useDrivers from "../hooks/useDrivers";
 
 const Drivers = () => {
-  const { data, isLoading, error } = useData<Driver>("/drivers", true);
+  const navigate = useNavigate();
+  // const { data, isLoading, error } = useData<Driver>("/drivers", true);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  // const fetchDrivers = () =>
-  //   apiClient
-  //     .get<Driver[]>("/drivers")
-  //     .then((res) => {
-  //       console.log(res);
-  //       return res.data;
-  //     });
+  const { data: drivers, error, isLoading } = useDrivers();
 
-  // const { data: drivers } = useQuery({
-  //   queryKey: ["drivers"],
-  //   queryFn: fetchDrivers,
-  // });
+  useEffect(() => {
+    // this shit it causing to force user to login twice
+    if (error?.response?.status === 401) {
+      navigate("/login");
+      // so i fixed it by changing status code, it doesnt execute here again
+      error.response.status = 0;
+    }
+  }, [error]);
 
   return (
     <>
@@ -50,7 +48,7 @@ const Drivers = () => {
       {isLoading && <Spinner />}
       {error && (
         <Text fontSize={30} color="tomato">
-          {error}
+          {error.message}
         </Text>
       )}
 
@@ -70,7 +68,7 @@ const Drivers = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {data.map((driver, index) => {
+            {drivers?.map((driver, index) => {
               return (
                 <Tr key={driver.id}>
                   <Td isNumeric>{index + 1}</Td>

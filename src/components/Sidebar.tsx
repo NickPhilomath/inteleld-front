@@ -28,6 +28,12 @@ const Sidebar = () => {
               <Text>Drivers</Text>
             </HStack>
           </Link>
+          <Link to="/trucks">
+            <HStack>
+              <TbUsers />
+              <Text>Trucks</Text>
+            </HStack>
+          </Link>
           <Link to="/map">
             <HStack>
               <TbMap />
