@@ -3,7 +3,10 @@ import Layout from "../components/Layout";
 import Home from "../components/Home";
 import Login from "../components/Login";
 import Logout from "../components/Logout";
+import Map from "../components/Map";
+import Logs from "../components/Logs";
 import Drivers from "../components/Drivers";
+import Trucks from "../components/Trucks";
 import PageNotFound from "../components/PageNotFound";
 
 const router = createBrowserRouter([
@@ -14,8 +17,10 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "", element: <Home /> },
+      { path: "map", element: <Map /> },
+      { path: "logs", element: <Logs /> },
       { path: "drivers", element: <Drivers /> },
-      { path: "trucks", element: <h1>trucks</h1> },
+      { path: "trucks", element: <Trucks /> },
     ],
   },
   { path: "*", element: <PageNotFound /> },

@@ -1,11 +1,12 @@
-import { AxiosRequestConfig, CanceledError } from "axios";
+import { AxiosError, AxiosRequestConfig, CanceledError } from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../services/api-client";
 
 const useRequest = <T>(endpoint: string, redirectOn401: boolean = false, requestConfig?: AxiosRequestConfig) => {
   const [resData, setResData] = useState<T>();
-  const [error, setError] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [resErros, setResErrors] = useState<any>({})
   const [isLoading, setLoading] = useState(false);
   //
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const useRequest = <T>(endpoint: string, redirectOn401: boolean = false, request
   const post = (data: any, callback: Function = ()=>{}) => {
     // clean before fetching
     setLoading(true);
-    setError("");
+    setErrorMsg("");
     apiClient
       .post<T>(endpoint, data, { ...requestConfig })
       .then((res) => {
@@ -21,16 +22,23 @@ const useRequest = <T>(endpoint: string, redirectOn401: boolean = false, request
         setLoading(false);
         callback(res.data);
       })
-      .catch((err) => {
+      .catch((err: AxiosError) => {
         if (err instanceof CanceledError) return;
-        setError(err.message);
+        setErrorMsg(err.message);
         setLoading(false);
 
-        if (redirectOn401) navigate('/login')
+        if(err.response?.data)
+        setResErrors(err.response?.data)
+
+        if (redirectOn401 && err.response?.status === 401) navigate('/login')
+        if (err.response?.status === 400 && err.response.data) {
+          setResErrors(err.response.data);
+          console.log('reserr', err.response.data)
+        }
       });
   }
 
-  return { post, resData, error, isLoading };
+  return { post, resData, errorMsg, resErros, isLoading };
 };
 
 export default useRequest;

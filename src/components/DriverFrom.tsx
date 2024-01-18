@@ -22,10 +22,12 @@ import InputError from "./common/InputError";
 import { STATES } from "..";
 import useRequest from "../hooks/useRequest";
 import SpinnerButton from "./common/SpinnerButton";
+import { getHeaders } from "../hooks/useData";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  handleRefetch: () => void;
 }
 
 interface DriverUserData {
@@ -45,18 +47,42 @@ interface DriverData {
   notes: string;
 }
 
-const DriverFrom = ({ isOpen, onClose }: Props) => {
+const getErrorMsg = (data: any, index: string) => {
+  let indexes = index.split(".");
+
+  for (let i = 0; i < indexes.length; i++) {
+    Object.keys(data).forEach((s) => {
+      if (s === indexes[i]) data = data[s];
+    });
+  }
+  // prepare message
+  let msg = "";
+  for (let i = 0; i < data.length; i++) msg += data[i] + " ";
+  return msg;
+};
+
+const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
-  const { post, isLoading, error } = useRequest<DriverData>("/drivers/", true);
+  const { post, isLoading, errorMsg, resErros } = useRequest<DriverData>(
+    "/drivers/",
+    true,
+    {
+      headers: getHeaders(),
+    }
+  );
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<DriverData>();
 
   const onSubmit = async (data: FieldValues) => {
-    console.log("data", data);
-    post(data);
+    post(data, () => {
+      onClose();
+      reset();
+      handleRefetch();
+    });
   };
 
   const handleShowClick = () => setShowPassword(!showPassword);
@@ -81,6 +107,9 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.first_name?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError
+                    message={getErrorMsg(resErros, "user.first_name")}
+                  />
                 </FormControl>
                 <FormControl>
                   <Input
@@ -92,6 +121,9 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.last_name?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError
+                    message={getErrorMsg(resErros, "user.last_name")}
+                  />
                 </FormControl>
                 <FormControl>
                   <Input
@@ -103,6 +135,9 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.username?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError
+                    message={getErrorMsg(resErros, "user.username")}
+                  />
                 </FormControl>
                 <FormControl>
                   <Input
@@ -114,6 +149,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.email?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError message={getErrorMsg(resErros, "user.email")} />
                 </FormControl>
               </HStack>
               <HStack>
@@ -134,6 +170,9 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.password?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError
+                    message={getErrorMsg(resErros, "user.password")}
+                  />
                 </FormControl>
                 <FormControl>
                   <Input
@@ -145,6 +184,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.user?.phone?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError message={getErrorMsg(resErros, "user.phone")} />
                 </FormControl>
                 <FormControl>
                   <Input
@@ -156,6 +196,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.cdl_number?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError message={getErrorMsg(resErros, "cdl_number")} />
                 </FormControl>
                 <FormControl>
                   <Select
@@ -171,6 +212,7 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                       );
                     })}
                   </Select>
+                  <InputError message={getErrorMsg(resErros, "cdl_state")} />
                 </FormControl>
               </HStack>
               <HStack>
@@ -184,11 +226,12 @@ const DriverFrom = ({ isOpen, onClose }: Props) => {
                   {errors.notes?.type === "required" && (
                     <InputError message="This field is required" />
                   )}
+                  <InputError message={getErrorMsg(resErros, "notes")} />
                 </FormControl>
               </HStack>
-              {error && (
+              {errorMsg && (
                 <Text fontSize={15} color="tomato">
-                  {error}
+                  {errorMsg}
                 </Text>
               )}
             </Stack>

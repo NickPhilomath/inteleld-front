@@ -1,6 +1,6 @@
 import { Text } from "@chakra-ui/react";
 
-const InputError = ({ message }: { message: string }) => {
+const InputError = ({ message }: { message: string | undefined }) => {
   return (
     <Text fontSize={15} color="tomato">
       {message}

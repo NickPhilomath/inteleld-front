@@ -1,46 +1,41 @@
 import { Link } from "react-router-dom";
 import { HStack, Heading, List, ListItem, Text } from "@chakra-ui/react";
-import { TbMap, TbStack2, TbUsers } from "react-icons/tb";
+import { TbMap, TbStack2, TbUsers, TbTruck } from "react-icons/tb";
 
 const Sidebar = () => {
+  const data = [
+    { name: "Map", link: "/map", icon: <TbMap size="23px" /> },
+    { name: "Logs", link: "/logs", icon: <TbStack2 size="23px" /> },
+    { name: "Drivers", link: "/drivers", icon: <TbUsers size="23px" /> },
+    { name: "Trucks", link: "/trucks", icon: <TbTruck size="23px" /> },
+    { name: "Map", link: "/map", icon: <TbMap size="23px" /> },
+  ];
+
   return (
     <>
       <Heading size="md" marginTop={9} marginBottom={3}>
         Intel ELD
       </Heading>
-      <List>
-        <ListItem>
-          <Link to="/map">
-            <HStack>
-              <TbMap />
-              <Text>Map</Text>
-            </HStack>
-          </Link>
-          <Link to="/logs">
-            <HStack>
-              <TbStack2 />
-              <Text>Logs</Text>
-            </HStack>
-          </Link>
-          <Link to="/drivers">
-            <HStack>
-              <TbUsers />
-              <Text>Drivers</Text>
-            </HStack>
-          </Link>
-          <Link to="/trucks">
-            <HStack>
-              <TbUsers />
-              <Text>Trucks</Text>
-            </HStack>
-          </Link>
-          <Link to="/map">
-            <HStack>
-              <TbMap />
-              <Text>Map</Text>
-            </HStack>
-          </Link>
-        </ListItem>
+      <List mt={10}>
+        {data.map((item, index) => {
+          return (
+            <ListItem
+              key={index}
+              mb={2}
+              fontSize={15}
+              padding={2}
+              borderRadius={7}
+              _hover={{ bg: "blue.800" }}
+            >
+              <Link to={item.link}>
+                <HStack>
+                  {item.icon}
+                  <Text>{item.name}</Text>
+                </HStack>
+              </Link>
+            </ListItem>
+          );
+        })}
       </List>
     </>
   );

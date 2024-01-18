@@ -23,7 +23,7 @@ const Drivers = () => {
   // const { data, isLoading, error } = useData<Driver>("/drivers", true);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const { data: drivers, error, isLoading } = useDrivers();
+  const { data: drivers, error, isLoading, refetch } = useDrivers();
 
   useEffect(() => {
     // this shit it causing to force user to login twice
@@ -34,16 +34,22 @@ const Drivers = () => {
     }
   }, [error]);
 
+  const handleRefetch = () => refetch();
+
   return (
     <>
       <HStack justifyContent="space-between" padding={5} marginBottom={6}>
         <Heading size="lg">Drivers</Heading>
-        <Button size="lg" colorScheme="blue" onClick={onOpen}>
+        <Button size="md" colorScheme="blue" onClick={onOpen}>
           Add driver
         </Button>
       </HStack>
 
-      <DriverFrom isOpen={isOpen} onClose={onClose} />
+      <DriverFrom
+        isOpen={isOpen}
+        onClose={onClose}
+        handleRefetch={handleRefetch}
+      />
 
       {isLoading && <Spinner />}
       {error && (
