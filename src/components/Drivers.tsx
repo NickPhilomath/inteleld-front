@@ -13,30 +13,24 @@ import {
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPen, FaTrash } from "react-icons/fa";
+import { getDateString } from "../util";
 import Spinner from "./common/Spinner";
 import DriverFrom from "./DriverFrom";
 import useDrivers from "../hooks/useDrivers";
-import ErrMsg from "./common/ErrMsg";
+import Msg from "./common/Msg";
 
 const CFaPen = chakra(FaPen);
 const CFaTrash = chakra(FaTrash);
 
-const getDate = (strDate: string) => {
-  let datetime = new Date(strDate);
-  return datetime
-    .toLocaleString("en-US", { timeZone: "US/Eastern" })
-    .split(",")[0];
-};
-
 const Drivers = () => {
   const navigate = useNavigate();
-  // const { data, isLoading, error } = useData<Driver>("/drivers", true);
+  const [isFormOpen, setFormOpen] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const { data: drivers, error, isLoading, refetch } = useDrivers();
+  const [initDriverId, setInitDriverId] = useState<number | undefined>();
 
   useEffect(() => {
     // this shit it causing to force user to login twice
@@ -47,22 +41,40 @@ const Drivers = () => {
     }
   }, [error]);
 
-  const handleRefetch = () => refetch();
+  const handleRefetch = () => {
+    setFormOpen(false);
+    refetch();
+  };
+  const handleEditDriver = (id: number) => {
+    setInitDriverId(id);
+    onOpen();
+  };
+  const handleCloseForm = () => {
+    setFormOpen(false);
+  };
 
   return (
     <>
       <HStack justifyContent="space-between" padding={5} marginBottom={6}>
         <Heading size="lg">Drivers</Heading>
-        <Button size="md" colorScheme="blue" onClick={onOpen}>
+        <Button
+          size="md"
+          colorScheme="blue"
+          onClick={() => {
+            setFormOpen(true);
+          }}
+        >
           Add driver
         </Button>
       </HStack>
-
-      <DriverFrom
-        isOpen={isOpen}
-        onClose={onClose}
-        handleRefetch={handleRefetch}
-      />
+      {isFormOpen && (
+        <DriverFrom
+          isOpen={isFormOpen}
+          onClose={handleCloseForm}
+          handleRefetch={handleRefetch}
+          initialDriverId={initDriverId}
+        />
+      )}
 
       {isLoading && <Spinner />}
       {error && (
@@ -99,22 +111,29 @@ const Drivers = () => {
                     {driver.truck ? (
                       driver.truck
                     ) : (
-                      <ErrMsg>not assigned</ErrMsg>
+                      <Msg level="error" bold>
+                        not assigned
+                      </Msg>
                     )}
                   </Td>
                   <Td>
                     {driver.app_version ? (
                       driver.app_version
                     ) : (
-                      <ErrMsg>no data</ErrMsg>
+                      <Msg level="warn" bold>
+                        no data
+                      </Msg>
                     )}
                   </Td>
-                  <Td>{getDate(driver.user.date_joined)}</Td>
+                  <Td>{getDateString(driver.user.date_joined)}</Td>
                   <Td>
                     <HStack fontSize={20}>
                       <CFaPen
                         color="orange.400"
                         _hover={{ cursor: "pointer" }}
+                        onClick={() => {
+                          handleEditDriver(driver.id);
+                        }}
                       />
                       <CFaTrash
                         ml={3}

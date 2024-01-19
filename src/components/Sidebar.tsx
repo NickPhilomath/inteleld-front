@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { HStack, Heading, List, ListItem, Text } from "@chakra-ui/react";
-import { TbMap, TbStack2, TbUsers, TbTruck } from "react-icons/tb";
+import { TbMap, TbStack2, TbUsers, TbTruck, TbLogout } from "react-icons/tb";
 
 const Sidebar = () => {
   const data = [
@@ -8,7 +8,7 @@ const Sidebar = () => {
     { name: "Logs", link: "/logs", icon: <TbStack2 size="23px" /> },
     { name: "Drivers", link: "/drivers", icon: <TbUsers size="23px" /> },
     { name: "Trucks", link: "/trucks", icon: <TbTruck size="23px" /> },
-    { name: "Map", link: "/map", icon: <TbMap size="23px" /> },
+    { name: "Log out", link: "/logout", icon: <TbLogout size="23px" /> },
   ];
 
   return (
@@ -25,12 +25,11 @@ const Sidebar = () => {
               fontSize={15}
               padding={2}
               borderRadius={7}
-              _hover={{ bg: "blue.800" }}
             >
               <Link to={item.link}>
                 <HStack>
                   {item.icon}
-                  <Text>{item.name}</Text>
+                  <Text fontWeight="bold">{item.name}</Text>
                 </HStack>
               </Link>
             </ListItem>

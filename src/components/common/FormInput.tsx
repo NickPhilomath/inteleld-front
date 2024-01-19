@@ -1,6 +1,6 @@
 import { FormControl, Input } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
-import ErrMsg from "./ErrMsg";
+import Msg from "./Msg";
 
 interface Props {
   id: string;
@@ -22,8 +22,8 @@ const FormInput = ({
   return (
     <FormControl>
       <Input type={type} placeholder={placeholder} id={id} {...conf} />
-      <ErrMsg>{errMsg}</ErrMsg>
-      <ErrMsg>{resErrMsg}</ErrMsg>
+      <Msg level="error">{errMsg}</Msg>
+      <Msg level="error">{resErrMsg}</Msg>
     </FormControl>
   );
 };

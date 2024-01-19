@@ -1,7 +1,7 @@
 import { FormControl, Select } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
 import { ReactNode } from "react";
-import ErrMsg from "./ErrMsg";
+import Msg from "./Msg";
 
 interface Props {
   id: string;
@@ -25,8 +25,8 @@ const FormSelect = ({
       <Select placeholder={placeholder} id={id} {...conf}>
         {children}
       </Select>
-      <ErrMsg>{errMsg}</ErrMsg>
-      <ErrMsg>{resErrMsg}</ErrMsg>
+      <Msg level="error">{errMsg}</Msg>
+      <Msg level="error">{resErrMsg}</Msg>
     </FormControl>
   );
 };

@@ -10,6 +10,8 @@ import {
   ModalHeader,
   ModalOverlay,
   Stack,
+  Checkbox,
+  Spinner,
 } from "@chakra-ui/react";
 import { FieldValues, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,16 +19,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { STATES } from "..";
 import useRequest from "../hooks/useRequest";
 import { getHeaders } from "../hooks/useData";
+import useDriver from "../hooks/useDriver";
 import { getErrorMsg } from "../util";
 import SpinnerButton from "./common/SpinnerButton";
 import FormInput from "./common/FormInput";
 import FormInputPasswd from "./common/FormInputPasswd";
 import FormSelect from "./common/FormSelect";
+import { useEffect } from "react";
 
 const schema = z.object({
   // truck: z.number({ invalid_type_error: "Truck is required" }).positive(),
   cdl_number: z.string().min(5),
   cdl_state: z.string(),
+  phone: z.string().min(3).max(13),
+  allow_pc: z.boolean(),
+  allow_ym: z.boolean(),
   notes: z.string().max(255),
   user: z.object({
     first_name: z.string().min(3),
@@ -34,9 +41,24 @@ const schema = z.object({
     username: z.string().min(2),
     email: z.string().email(),
     password: z.string().min(1),
-    phone: z.string().max(13),
   }),
 });
+
+// schema.default({
+//   cdl_number: "z.string().min(5)",
+//   cdl_state: "z.string()",
+//   phone: "z.st.max(13)",
+//   allow_pc: true,
+//   allow_ym: false,
+//   notes: "z.string().max(255)",
+//   user: {
+//     first_name: "z.string().min(3)",
+//     last_name: "z.string().min(3)",
+//     username: "z.string().min(2)",
+//     email: "fuckyou@fucker.com",
+//     password: "z.strmin(1)",
+//   },
+// });
 
 type FormData = z.infer<typeof schema>;
 
@@ -44,9 +66,21 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   handleRefetch: () => void;
+  initialDriverId: number | undefined;
 }
 
-const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
+const DriverFrom = ({
+  isOpen,
+  onClose,
+  handleRefetch,
+  initialDriverId,
+}: Props) => {
+  const {
+    data: driver,
+    error,
+    isLoading: initLoading,
+    refetch,
+  } = useDriver(initialDriverId);
   const { post, isLoading, errorMsg, resErros } = useRequest<FormData>(
     "/drivers/",
     true,
@@ -58,16 +92,28 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<FormData>({ resolver: zodResolver(schema) });
+    formState: { errors, isValid },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
 
   const onSubmit = async (data: FieldValues) => {
     post(data, () => {
-      onClose();
-      reset();
       handleRefetch();
     });
   };
+
+  useEffect(() => {
+    if (initialDriverId) {
+      console.log("clean and refetch");
+      reset();
+      refetch();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (driver) reset(driver);
+  }, [driver]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -76,6 +122,7 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
         <ModalHeader>Create a Driver</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          {initLoading && <Spinner />}
           <form id="driver-form" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               <HStack>
@@ -123,10 +170,10 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
                 <FormInput
                   type="text"
                   placeholder="Phone number"
-                  id="user.phone"
-                  conf={register("user.phone")}
-                  errMsg={errors.user?.phone?.message}
-                  resErrMsg={getErrorMsg(resErros, "user.phone")}
+                  id="phone"
+                  conf={register("phone")}
+                  errMsg={errors.phone?.message}
+                  resErrMsg={getErrorMsg(resErros, "phone")}
                 />
                 <FormInput
                   type="text"
@@ -162,6 +209,14 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
                   resErrMsg={getErrorMsg(resErros, "notes")}
                 />
               </HStack>
+              <HStack>
+                <Checkbox id="allow_pc" {...register("allow_pc")}>
+                  Allow Personal Conveyance
+                </Checkbox>
+                <Checkbox id="allow_ym" {...register("allow_ym")} ml={8}>
+                  Allow Yard Move
+                </Checkbox>
+              </HStack>
               {errorMsg && (
                 <Text fontSize={15} color="tomato">
                   {errorMsg}
@@ -177,7 +232,12 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
           {isLoading ? (
             <SpinnerButton />
           ) : (
-            <Button type="submit" form="driver-form" colorScheme="blue">
+            <Button
+              disabled={!isValid}
+              type="submit"
+              form="driver-form"
+              colorScheme="blue"
+            >
               Save
             </Button>
           )}

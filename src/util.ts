@@ -23,6 +23,13 @@ export const filterArray = <T>(arr: T[]) => {
   // );
 };
 
+export const getDateString = (strDate: string) => {
+  let datetime = new Date(strDate);
+  return datetime
+    .toLocaleString("en-US", { timeZone: "US/Eastern" })
+    .split(",")[0];
+};
+
 export const getErrorMsg = (data: any, index: string) => {
   let indexes = index.split(".");
 

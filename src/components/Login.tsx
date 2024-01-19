@@ -22,7 +22,7 @@ import { FaUserAlt, FaLock } from "react-icons/fa";
 import useRequest from "../hooks/useRequest";
 import { Auth } from "..";
 import { JWTDecoder } from "../util";
-import ErrMsg from "./common/ErrMsg";
+import Msg from "./common/Msg";
 import SpinnerButton from "./common/SpinnerButton";
 
 const CFaUserAlt = chakra(FaUserAlt);
@@ -93,7 +93,7 @@ const Login = () => {
                   />
                 </InputGroup>
                 {errors.username?.type === "required" && (
-                  <ErrMsg>The username field is required</ErrMsg>
+                  <Msg level="error">The username field is required</Msg>
                 )}
               </FormControl>
               <FormControl>
@@ -116,7 +116,7 @@ const Login = () => {
                   </InputRightElement>
                 </InputGroup>
                 {errors.password?.type === "required" && (
-                  <ErrMsg>The password field is required</ErrMsg>
+                  <Msg level="error">The password field is required</Msg>
                 )}
                 <FormHelperText textAlign="right">
                   <Link>forgot password?</Link>
@@ -130,7 +130,7 @@ const Login = () => {
               {isLoading ? (
                 <SpinnerButton />
               ) : (
-                <Button type="submit" colorScheme="blue">
+                <Button disabled={!isValid} type="submit" colorScheme="blue">
                   Log in
                 </Button>
               )}

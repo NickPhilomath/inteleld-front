@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
 import { useState } from "react";
-import ErrMsg from "./ErrMsg";
+import Msg from "./Msg";
 
 interface Props {
   id: string;
@@ -42,8 +42,8 @@ const FormInputPasswd = ({
           </Button>
         </InputRightElement>
       </InputGroup>
-      <ErrMsg>{errMsg}</ErrMsg>
-      <ErrMsg>{resErrMsg}</ErrMsg>
+      <Msg level="error">{errMsg}</Msg>
+      <Msg level="error">{resErrMsg}</Msg>
     </FormControl>
   );
 };
