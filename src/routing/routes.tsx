@@ -5,7 +5,7 @@ import Login from "../components/Login";
 import Logout from "../components/Logout";
 import Map from "../components/Map";
 import Logs from "../components/Logs";
-import Drivers from "../components/Drivers";
+import Drivers from "../components/Drivers/Drivers";
 import Trucks from "../components/Trucks";
 import PageNotFound from "../components/PageNotFound";
 

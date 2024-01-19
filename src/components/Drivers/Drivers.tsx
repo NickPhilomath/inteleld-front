@@ -16,21 +16,22 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPen, FaTrash } from "react-icons/fa";
-import { getDateString } from "../util";
-import Spinner from "./common/Spinner";
+import { getDateString } from "../../util";
+import Spinner from "../common/Spinner";
 import DriverFrom from "./DriverFrom";
-import useDrivers from "../hooks/useDrivers";
-import Msg from "./common/Msg";
+import useDrivers from "../../hooks/useDrivers";
+import Msg from "../common/Msg";
+import DriverUpdateFrom from "./DriverUpdateForm";
 
 const CFaPen = chakra(FaPen);
 const CFaTrash = chakra(FaTrash);
 
 const Drivers = () => {
   const navigate = useNavigate();
-  const [isFormOpen, setFormOpen] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data: drivers, error, isLoading, refetch } = useDrivers();
   const [initDriverId, setInitDriverId] = useState<number | undefined>();
+  const [formState, setFormState] = useState<"create" | "update">("create");
 
   useEffect(() => {
     // this shit it causing to force user to login twice
@@ -42,15 +43,14 @@ const Drivers = () => {
   }, [error]);
 
   const handleRefetch = () => {
-    setFormOpen(false);
+    setFormState("create");
     refetch();
   };
+
   const handleEditDriver = (id: number) => {
     setInitDriverId(id);
+    setFormState("update");
     onOpen();
-  };
-  const handleCloseForm = () => {
-    setFormOpen(false);
   };
 
   return (
@@ -61,22 +61,33 @@ const Drivers = () => {
           size="md"
           colorScheme="blue"
           onClick={() => {
-            setFormOpen(true);
+            setInitDriverId(undefined);
+            setFormState("create");
+            onOpen();
           }}
         >
           Add driver
         </Button>
       </HStack>
-      {isFormOpen && (
+
+      {formState === "create" && (
         <DriverFrom
-          isOpen={isFormOpen}
-          onClose={handleCloseForm}
+          isOpen={isOpen}
+          onClose={onClose}
           handleRefetch={handleRefetch}
-          initialDriverId={initDriverId}
+        />
+      )}
+      {formState === "update" && (
+        <DriverUpdateFrom
+          isOpen={isOpen}
+          onClose={onClose}
+          handleRefetch={handleRefetch}
+          driverID={initDriverId}
         />
       )}
 
       {isLoading && <Spinner />}
+
       {error && (
         <Text fontSize={30} color="tomato">
           {error.message}

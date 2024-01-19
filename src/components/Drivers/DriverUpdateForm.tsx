@@ -14,20 +14,19 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { FieldValues, useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { STATES } from "..";
-import useRequest from "../hooks/useRequest";
-import { getHeaders } from "../hooks/useData";
-import useDriver from "../hooks/useDriver";
-import { getErrorMsg } from "../util";
-import SpinnerButton from "./common/SpinnerButton";
-import FormInput from "./common/FormInput";
-import FormInputPasswd from "./common/FormInputPasswd";
-import FormSelect from "./common/FormSelect";
+import { z } from "zod";
 import { useEffect } from "react";
+import { STATES } from "../..";
+import useRequest from "../../hooks/useRequest";
+import { getHeaders } from "../../hooks/useData";
+import useDriver from "../../hooks/useDriver";
+import { getErrorMsg } from "../../util";
+import SpinnerButton from "../common/SpinnerButton";
+import FormInput from "../common/FormInput";
+import FormSelect from "../common/FormSelect";
 
-const schema = z.object({
+export const schema = z.object({
   // truck: z.number({ invalid_type_error: "Truck is required" }).positive(),
   cdl_number: z.string().min(5),
   cdl_state: z.string(),
@@ -40,54 +39,34 @@ const schema = z.object({
     last_name: z.string().min(3),
     username: z.string().min(2),
     email: z.string().email(),
-    password: z.string().min(1),
   }),
 });
 
-// schema.default({
-//   cdl_number: "z.string().min(5)",
-//   cdl_state: "z.string()",
-//   phone: "z.st.max(13)",
-//   allow_pc: true,
-//   allow_ym: false,
-//   notes: "z.string().max(255)",
-//   user: {
-//     first_name: "z.string().min(3)",
-//     last_name: "z.string().min(3)",
-//     username: "z.string().min(2)",
-//     email: "fuckyou@fucker.com",
-//     password: "z.strmin(1)",
-//   },
-// });
-
-type FormData = z.infer<typeof schema>;
+export type FormData = z.infer<typeof schema>;
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   handleRefetch: () => void;
-  initialDriverId: number | undefined;
+  driverID?: number | undefined;
 }
 
-const DriverFrom = ({
+const DriverUpdateFrom = ({
   isOpen,
   onClose,
   handleRefetch,
-  initialDriverId,
+  driverID,
 }: Props) => {
-  const {
-    data: driver,
-    error,
-    isLoading: initLoading,
-    refetch,
-  } = useDriver(initialDriverId);
-  const { post, isLoading, errorMsg, resErros } = useRequest<FormData>(
-    "/drivers/",
+  const { data: driver, error, isLoading: initLoading } = useDriver(driverID);
+
+  const { put, isLoading, errorMsg, resErros } = useRequest<FormData>(
+    "/drivers/" + driverID,
     true,
     {
       headers: getHeaders(),
     }
   );
+
   const {
     register,
     handleSubmit,
@@ -98,18 +77,17 @@ const DriverFrom = ({
   });
 
   const onSubmit = async (data: FieldValues) => {
-    post(data, () => {
+    console.log("data^^^^", data);
+    put(data, () => {
+      reset();
       handleRefetch();
     });
   };
 
-  useEffect(() => {
-    if (initialDriverId) {
-      console.log("clean and refetch");
-      reset();
-      refetch();
-    }
-  }, []);
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
 
   useEffect(() => {
     if (driver) reset(driver);
@@ -119,11 +97,11 @@ const DriverFrom = ({
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent maxW="69rem">
-        <ModalHeader>Create a Driver</ModalHeader>
+        <ModalHeader>Update Driver</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           {initLoading && <Spinner />}
-          <form id="driver-form" onSubmit={handleSubmit(onSubmit)}>
+          <form id="driver-update-form" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               <HStack>
                 <FormInput
@@ -160,13 +138,6 @@ const DriverFrom = ({
                 />
               </HStack>
               <HStack>
-                <FormInputPasswd
-                  placeholder="Password"
-                  id="user.password"
-                  conf={register("user.password")}
-                  errMsg={errors.user?.password?.message}
-                  resErrMsg={getErrorMsg(resErros, "user.password")}
-                />
                 <FormInput
                   type="text"
                   placeholder="Phone number"
@@ -226,7 +197,7 @@ const DriverFrom = ({
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button variant="outline" mr={3} onClick={onClose}>
+          <Button variant="outline" mr={3} onClick={handleClose}>
             Cancel
           </Button>
           {isLoading ? (
@@ -235,10 +206,10 @@ const DriverFrom = ({
             <Button
               disabled={!isValid}
               type="submit"
-              form="driver-form"
+              form="driver-update-form"
               colorScheme="blue"
             >
-              Save
+              Update
             </Button>
           )}
         </ModalFooter>
@@ -247,4 +218,4 @@ const DriverFrom = ({
   );
 };
 
-export default DriverFrom;
+export default DriverUpdateFrom;
