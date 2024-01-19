@@ -22,8 +22,7 @@ import { FaUserAlt, FaLock } from "react-icons/fa";
 import useRequest from "../hooks/useRequest";
 import { Auth } from "..";
 import { JWTDecoder } from "../util";
-import FormButton from "./common/SpinnerButton";
-import InputError from "./common/InputError";
+import ErrMsg from "./common/ErrMsg";
 import SpinnerButton from "./common/SpinnerButton";
 
 const CFaUserAlt = chakra(FaUserAlt);
@@ -37,7 +36,7 @@ interface LoginData {
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const { post, isLoading, error } = useRequest<Auth>("/token/");
+  const { post, isLoading, errorMsg } = useRequest<Auth>("/token/");
   const {
     register,
     handleSubmit,
@@ -94,7 +93,7 @@ const Login = () => {
                   />
                 </InputGroup>
                 {errors.username?.type === "required" && (
-                  <InputError message="The username field is required" />
+                  <ErrMsg>The username field is required</ErrMsg>
                 )}
               </FormControl>
               <FormControl>
@@ -117,15 +116,15 @@ const Login = () => {
                   </InputRightElement>
                 </InputGroup>
                 {errors.password?.type === "required" && (
-                  <InputError message="The password field is required" />
+                  <ErrMsg>The password field is required</ErrMsg>
                 )}
                 <FormHelperText textAlign="right">
                   <Link>forgot password?</Link>
                 </FormHelperText>
               </FormControl>
-              {error && (
+              {errorMsg && (
                 <Text fontSize={15} color="tomato">
-                  {error}
+                  {errorMsg}
                 </Text>
               )}
               {isLoading ? (

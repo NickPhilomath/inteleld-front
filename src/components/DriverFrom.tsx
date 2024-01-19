@@ -1,11 +1,7 @@
 import {
   Text,
   Button,
-  FormControl,
   HStack,
-  Input,
-  InputGroup,
-  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,16 +9,36 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Stack,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { FieldValues, useForm } from "react-hook-form";
-import InputError from "./common/InputError";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { STATES } from "..";
 import useRequest from "../hooks/useRequest";
-import SpinnerButton from "./common/SpinnerButton";
 import { getHeaders } from "../hooks/useData";
+import { getErrorMsg } from "../util";
+import SpinnerButton from "./common/SpinnerButton";
+import FormInput from "./common/FormInput";
+import FormInputPasswd from "./common/FormInputPasswd";
+import FormSelect from "./common/FormSelect";
+
+const schema = z.object({
+  // truck: z.number({ invalid_type_error: "Truck is required" }).positive(),
+  cdl_number: z.string().min(5),
+  cdl_state: z.string(),
+  notes: z.string().max(255),
+  user: z.object({
+    first_name: z.string().min(3),
+    last_name: z.string().min(3),
+    username: z.string().min(2),
+    email: z.string().email(),
+    password: z.string().min(1),
+    phone: z.string().max(13),
+  }),
+});
+
+type FormData = z.infer<typeof schema>;
 
 interface Props {
   isOpen: boolean;
@@ -30,40 +46,8 @@ interface Props {
   handleRefetch: () => void;
 }
 
-interface DriverUserData {
-  first_name: string;
-  last_name: string;
-  username: string;
-  email: string;
-  password: string;
-  phone: string;
-}
-
-interface DriverData {
-  user: DriverUserData;
-  vehicle: number;
-  cdl_number: string;
-  cdl_state: string;
-  notes: string;
-}
-
-const getErrorMsg = (data: any, index: string) => {
-  let indexes = index.split(".");
-
-  for (let i = 0; i < indexes.length; i++) {
-    Object.keys(data).forEach((s) => {
-      if (s === indexes[i]) data = data[s];
-    });
-  }
-  // prepare message
-  let msg = "";
-  for (let i = 0; i < data.length; i++) msg += data[i] + " ";
-  return msg;
-};
-
 const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const { post, isLoading, errorMsg, resErros } = useRequest<DriverData>(
+  const { post, isLoading, errorMsg, resErros } = useRequest<FormData>(
     "/drivers/",
     true,
     {
@@ -75,7 +59,7 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<DriverData>();
+  } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FieldValues) => {
     post(data, () => {
@@ -84,8 +68,6 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
       handleRefetch();
     });
   };
-
-  const handleShowClick = () => setShowPassword(!showPassword);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -97,137 +79,88 @@ const DriverFrom = ({ isOpen, onClose, handleRefetch }: Props) => {
           <form id="driver-form" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               <HStack>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="First name"
-                    id="user.first_name"
-                    {...register("user.first_name", { required: true })}
-                  />
-                  {errors.user?.first_name?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError
-                    message={getErrorMsg(resErros, "user.first_name")}
-                  />
-                </FormControl>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Last name"
-                    id="user.last_name"
-                    {...register("user.last_name", { required: true })}
-                  />
-                  {errors.user?.last_name?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError
-                    message={getErrorMsg(resErros, "user.last_name")}
-                  />
-                </FormControl>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Username"
-                    id="user.username"
-                    {...register("user.username", { required: true })}
-                  />
-                  {errors.user?.username?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError
-                    message={getErrorMsg(resErros, "user.username")}
-                  />
-                </FormControl>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Email"
-                    id="user.email"
-                    {...register("user.email", { required: true })}
-                  />
-                  {errors.user?.email?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError message={getErrorMsg(resErros, "user.email")} />
-                </FormControl>
+                <FormInput
+                  type="text"
+                  placeholder="First name"
+                  id="user.first_name"
+                  conf={register("user.first_name")}
+                  errMsg={errors.user?.first_name?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.first_name")}
+                />
+                <FormInput
+                  type="text"
+                  placeholder="Last name"
+                  id="user.last_name"
+                  conf={register("user.last_name")}
+                  errMsg={errors.user?.last_name?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.last_name")}
+                />
+                <FormInput
+                  type="text"
+                  placeholder="Username"
+                  id="user.username"
+                  conf={register("user.username")}
+                  errMsg={errors.user?.username?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.username")}
+                />
+                <FormInput
+                  type="text"
+                  placeholder="Email"
+                  id="user.email"
+                  conf={register("user.email")}
+                  errMsg={errors.user?.email?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.email")}
+                />
               </HStack>
               <HStack>
-                <FormControl>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Password"
-                      id="user.password"
-                      {...register("user.password", { required: true })}
-                    />
-                    <InputRightElement width="4.5rem">
-                      <Button h="1.75rem" size="sm" onClick={handleShowClick}>
-                        {showPassword ? "Hide" : "Show"}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.user?.password?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError
-                    message={getErrorMsg(resErros, "user.password")}
-                  />
-                </FormControl>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Phone number"
-                    id="user.phone"
-                    {...register("user.phone", { required: true })}
-                  />
-                  {errors.user?.phone?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError message={getErrorMsg(resErros, "user.phone")} />
-                </FormControl>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="CDL number"
-                    id="cdl_number"
-                    {...register("cdl_number", { required: true })}
-                  />
-                  {errors.cdl_number?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError message={getErrorMsg(resErros, "cdl_number")} />
-                </FormControl>
-                <FormControl>
-                  <Select
-                    placeholder="CDL state"
-                    id="cdl_state"
-                    {...register("cdl_state")}
-                  >
-                    {STATES.map((state, index) => {
-                      return (
-                        <option key={index} value={state.value}>
-                          {state.name}
-                        </option>
-                      );
-                    })}
-                  </Select>
-                  <InputError message={getErrorMsg(resErros, "cdl_state")} />
-                </FormControl>
+                <FormInputPasswd
+                  placeholder="Password"
+                  id="user.password"
+                  conf={register("user.password")}
+                  errMsg={errors.user?.password?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.password")}
+                />
+                <FormInput
+                  type="text"
+                  placeholder="Phone number"
+                  id="user.phone"
+                  conf={register("user.phone")}
+                  errMsg={errors.user?.phone?.message}
+                  resErrMsg={getErrorMsg(resErros, "user.phone")}
+                />
+                <FormInput
+                  type="text"
+                  placeholder="CDL number"
+                  id="cdl_number"
+                  conf={register("cdl_number")}
+                  errMsg={errors.cdl_number?.message}
+                  resErrMsg={getErrorMsg(resErros, "cdl_number")}
+                />
+                <FormSelect
+                  placeholder="CDL state"
+                  id="cdl_state"
+                  conf={register("cdl_state")}
+                  errMsg={errors.cdl_state?.message}
+                  resErrMsg={getErrorMsg(resErros, "cdl_state")}
+                >
+                  {STATES.map((state, index) => {
+                    return (
+                      <option key={index} value={state.value}>
+                        {state.name}
+                      </option>
+                    );
+                  })}
+                </FormSelect>
               </HStack>
               <HStack>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="Notes"
-                    id="notes"
-                    {...register("notes")}
-                  />
-                  {errors.notes?.type === "required" && (
-                    <InputError message="This field is required" />
-                  )}
-                  <InputError message={getErrorMsg(resErros, "notes")} />
-                </FormControl>
+                <FormInput
+                  type="text"
+                  placeholder="Notes"
+                  id="notes"
+                  conf={register("notes")}
+                  errMsg={errors.notes?.message}
+                  resErrMsg={getErrorMsg(resErros, "notes")}
+                />
               </HStack>
               {errorMsg && (
                 <Text fontSize={15} color="tomato">

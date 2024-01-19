@@ -10,7 +10,7 @@ interface FetchResponse<T> {
 
 const useDrivers = () => {
     const fetchDrivers = () =>
-        apiClient.get<FetchResponse<Driver>>("/drivers", {headers: getHeaders()}).then((res) => { console.log(res); return res.data.data});
+        apiClient.get<FetchResponse<Driver>>("/drivers", {headers: getHeaders()}).then((res) => { console.log("data**", res.data.data); return res.data.data});
 
     return useQuery<Driver[], AxiosError>({
         queryKey: ["drivers"],

@@ -23,6 +23,20 @@ export const filterArray = <T>(arr: T[]) => {
   // );
 };
 
+export const getErrorMsg = (data: any, index: string) => {
+  let indexes = index.split(".");
+
+  for (let i = 0; i < indexes.length; i++) {
+    Object.keys(data).forEach((s) => {
+      if (s === indexes[i]) data = data[s];
+    });
+  }
+  // prepare message
+  let msg = "";
+  for (let i = 0; i < data.length; i++) msg += data[i] + " ";
+  return msg;
+};
+
 // export const sortArray = <T>(arr: T[], index: string) => {
 //   arr.sort((prev, next) => {
 //     return next - prev[index];

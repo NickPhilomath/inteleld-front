@@ -15,6 +15,7 @@ const useRequest = <T>(endpoint: string, redirectOn401: boolean = false, request
     // clean before fetching
     setLoading(true);
     setErrorMsg("");
+    setResErrors({});
     apiClient
       .post<T>(endpoint, data, { ...requestConfig })
       .then((res) => {

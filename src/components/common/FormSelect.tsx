@@ -1,31 +1,34 @@
-import { FormControl, Input } from "@chakra-ui/react";
+import { FormControl, Select } from "@chakra-ui/react";
 import { UseFormRegisterReturn } from "react-hook-form";
+import { ReactNode } from "react";
 import ErrMsg from "./ErrMsg";
 
 interface Props {
   id: string;
-  type: "text" | "password" | "number";
   placeholder: string;
   conf: UseFormRegisterReturn;
+  children: ReactNode;
   errMsg: string | undefined;
   resErrMsg: string;
 }
 
-const FormInput = ({
+const FormSelect = ({
   id,
-  type,
   placeholder,
   conf,
+  children,
   errMsg,
   resErrMsg,
 }: Props) => {
   return (
     <FormControl>
-      <Input type={type} placeholder={placeholder} id={id} {...conf} />
+      <Select placeholder={placeholder} id={id} {...conf}>
+        {children}
+      </Select>
       <ErrMsg>{errMsg}</ErrMsg>
       <ErrMsg>{resErrMsg}</ErrMsg>
     </FormControl>
   );
 };
 
-export default FormInput;
+export default FormSelect;

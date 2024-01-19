@@ -1,4 +1,5 @@
 import {
+  chakra,
   Table,
   TableContainer,
   Thead,
@@ -14,9 +15,21 @@ import {
 } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaPen, FaTrash } from "react-icons/fa";
 import Spinner from "./common/Spinner";
 import DriverFrom from "./DriverFrom";
 import useDrivers from "../hooks/useDrivers";
+import ErrMsg from "./common/ErrMsg";
+
+const CFaPen = chakra(FaPen);
+const CFaTrash = chakra(FaTrash);
+
+const getDate = (strDate: string) => {
+  let datetime = new Date(strDate);
+  return datetime
+    .toLocaleString("en-US", { timeZone: "US/Eastern" })
+    .split(",")[0];
+};
 
 const Drivers = () => {
   const navigate = useNavigate();
@@ -82,10 +95,34 @@ const Drivers = () => {
                   <Td>{driver.user.last_name}</Td>
                   <Td>{driver.user.username}</Td>
                   <Td>{driver.co_driver}</Td>
-                  <Td>{driver.truck}</Td>
-                  <Td>{driver.app_version}</Td>
-                  <Td>{driver.user.date_joined}</Td>
-                  <Td>edit</Td>
+                  <Td>
+                    {driver.truck ? (
+                      driver.truck
+                    ) : (
+                      <ErrMsg>not assigned</ErrMsg>
+                    )}
+                  </Td>
+                  <Td>
+                    {driver.app_version ? (
+                      driver.app_version
+                    ) : (
+                      <ErrMsg>no data</ErrMsg>
+                    )}
+                  </Td>
+                  <Td>{getDate(driver.user.date_joined)}</Td>
+                  <Td>
+                    <HStack fontSize={20}>
+                      <CFaPen
+                        color="orange.400"
+                        _hover={{ cursor: "pointer" }}
+                      />
+                      <CFaTrash
+                        ml={3}
+                        color="tomato"
+                        _hover={{ cursor: "pointer" }}
+                      />
+                    </HStack>
+                  </Td>
                 </Tr>
               );
             })}
