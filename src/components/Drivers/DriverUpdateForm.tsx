@@ -86,6 +86,7 @@ const DriverUpdateFrom = ({
 
   const handleClose = () => {
     reset();
+
     onClose();
   };
 
