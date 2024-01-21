@@ -6,7 +6,7 @@ import Logout from "../components/Logout";
 import Map from "../components/Map";
 import Logs from "../components/Logs";
 import Drivers from "../components/Drivers/Drivers";
-import Trucks from "../components/Trucks";
+import Trucks from "../components/Trucks/Trucks";
 import PageNotFound from "../components/PageNotFound";
 
 const router = createBrowserRouter([
