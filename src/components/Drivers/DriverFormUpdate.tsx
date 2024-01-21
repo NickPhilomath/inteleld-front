@@ -26,6 +26,7 @@ import SpinnerButton from "../common/SpinnerButton";
 import FormInput from "../common/FormInput";
 import FormSelect from "../common/FormSelect";
 
+
 export const schema = z.object({
   // truck: z.number({ invalid_type_error: "Truck is required" }).positive(),
   cdl_number: z.string().min(5),
@@ -37,7 +38,7 @@ export const schema = z.object({
   user: z.object({
     first_name: z.string().min(3),
     last_name: z.string().min(3),
-    username: z.string().min(2),
+    username: z.string().readonly(),
     email: z.string().email(),
   }),
 });
@@ -51,13 +52,13 @@ interface Props {
   driverID?: number | undefined;
 }
 
-const DriverUpdateFrom = ({
+const DriverFromUpdate = ({
   isOpen,
   onClose,
   handleRefetch,
   driverID,
 }: Props) => {
-  const { data: driver, error, isLoading: initLoading } = useDriver(driverID);
+  const { data: driver, error, isLoading: initLoading, refetch } = useDriver(driverID);
 
   const { put, isLoading, errorMsg, resErros } = useRequest<FormData>(
     "/drivers/" + driverID,
@@ -80,6 +81,7 @@ const DriverUpdateFrom = ({
     console.log("data^^^^", data);
     put(data, () => {
       reset();
+      refetch();
       handleRefetch();
     });
   };
@@ -102,6 +104,9 @@ const DriverUpdateFrom = ({
         <ModalCloseButton />
         <ModalBody>
           {initLoading && <Spinner />}
+          <Text color="tomato" fontSize={18} mb={5}>
+            {error?.message}
+          </Text>
           <form id="driver-update-form" onSubmit={handleSubmit(onSubmit)}>
             <Stack spacing={4}>
               <HStack>
@@ -219,4 +224,4 @@ const DriverUpdateFrom = ({
   );
 };
 
-export default DriverUpdateFrom;
+export default DriverFromUpdate;

@@ -21,7 +21,8 @@ import Spinner from "../common/Spinner";
 import DriverFrom from "./DriverFrom";
 import useDrivers from "../../hooks/useDrivers";
 import Msg from "../common/Msg";
-import DriverUpdateFrom from "./DriverUpdateForm";
+import DriverFromUpdate from "./DriverFormUpdate";
+import DriverDeactivate from "./DriverDeactivate";
 
 const CFaPen = chakra(FaPen);
 const CFaTrash = chakra(FaTrash);
@@ -31,7 +32,7 @@ const Drivers = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data: drivers, error, isLoading, refetch } = useDrivers();
   const [initDriverId, setInitDriverId] = useState<number | undefined>();
-  const [formState, setFormState] = useState<"create" | "update">("create");
+  const [formState, setFormState] = useState<"create" | "update" | "deactivate">("create");
 
   useEffect(() => {
     // this shit it causing to force user to login twice
@@ -44,6 +45,7 @@ const Drivers = () => {
 
   const handleRefetch = () => {
     setFormState("create");
+    onClose();
     refetch();
   };
 
@@ -52,6 +54,12 @@ const Drivers = () => {
     setFormState("update");
     onOpen();
   };
+
+  const handleDeactivateDriver = (id: number) => {
+    setInitDriverId(id);
+    setFormState("deactivate");
+    onOpen();
+  }
 
   return (
     <>
@@ -77,8 +85,18 @@ const Drivers = () => {
           handleRefetch={handleRefetch}
         />
       )}
+
       {formState === "update" && (
-        <DriverUpdateFrom
+        <DriverFromUpdate
+          isOpen={isOpen}
+          onClose={onClose}
+          handleRefetch={handleRefetch}
+          driverID={initDriverId}
+        />
+      )}
+
+      {formState === "deactivate" && (
+        <DriverDeactivate
           isOpen={isOpen}
           onClose={onClose}
           handleRefetch={handleRefetch}
@@ -150,6 +168,9 @@ const Drivers = () => {
                         ml={3}
                         color="tomato"
                         _hover={{ cursor: "pointer" }}
+                        onClick={() => {
+                          handleDeactivateDriver(driver.id);
+                        }}
                       />
                     </HStack>
                   </Td>
